@@ -1,21 +1,26 @@
 # overseas-stock-tax
 
-> Individual income tax filing tool for Chinese tax residents trading overseas stocks (HK / US via Futu / Longbridge).
+> A **Claude Code Skill** for Chinese tax residents to calculate and file individual income tax on overseas stock trading (HK/US via Futu/Longbridge).
 >
-> Compatible with **Claude Code · OpenAI Codex CLI · Cursor**, plus a browser-only web app.
+> Also compatible with OpenAI Codex CLI and Cursor, plus a browser-only web app.
 
 [中文](./README.md) · English
 
 > 🌐 **Live demo**: [https://fourierwang66666.github.io/overseas-stock-tax/](https://fourierwang66666.github.io/overseas-stock-tax/) — runs Pyodide in your browser; **your data never leaves your machine**.
 
-## Multi-IDE / Agent Support
+## Install & trigger
 
-| Environment | Entry file | How to trigger |
-|---|---|---|
-| **Claude Code** | `SKILL.md` | clone into `~/.claude/skills/overseas-stock-tax/`; mention "海外股票个税" or "overseas stock tax" |
-| **OpenAI Codex CLI** | `AGENTS.md` | clone the repo; `codex` reads `AGENTS.md` automatically |
-| **Cursor** | `.cursor/rules/overseas-stock-tax.mdc` | clone the repo; Cursor loads the rule automatically |
-| **Browser Web** | `index.html` | open with any static server / GitHub Pages |
+**Primary use — Claude Code Skill**:
+```bash
+git clone https://github.com/fourierwang66666/overseas-stock-tax \
+  ~/.claude/skills/overseas-stock-tax
+```
+In Claude Code, mention "海外股票个税", "overseas stock tax", "Futu/Longbridge filing", or similar phrases to auto-trigger. Skill entry: [SKILL.md](./SKILL.md).
+
+**Also compatible**:
+- **OpenAI Codex CLI** — clone the repo anywhere; `codex` auto-reads [AGENTS.md](./AGENTS.md)
+- **Cursor** — clone the repo anywhere; Cursor auto-loads [.cursor/rules/overseas-stock-tax.mdc](./.cursor/rules/overseas-stock-tax.mdc)
+- **Browser Web** — open the GitHub Pages link, or run `python3 -m http.server` locally
 
 ---
 

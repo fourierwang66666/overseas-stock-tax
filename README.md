@@ -1,22 +1,27 @@
 # overseas-stock-tax
 
-> 中国境内自然人海外股票（港股 / 美股）个人所得税申报工具
+> 中国境内自然人海外股票（港股 / 美股）个人所得税申报 **Claude Code Skill**
 >
-> 兼容 **Claude Code · OpenAI Codex CLI · Cursor** 三种 AI 编程环境，附带浏览器纯前端 Web 版。
+> 同时兼容 OpenAI Codex CLI 和 Cursor，附带浏览器纯前端 Web 版。
 
 [English](./README_EN.md) · 中文
 
 > 🌐 **在线体验**：[https://fourierwang66666.github.io/overseas-stock-tax/](https://fourierwang66666.github.io/overseas-stock-tax/)
 > 浏览器内 Pyodide 运行，**数据不离开你的电脑**。支持算法版（无需 Key）+ AI 增强版（自带 Anthropic Key）。
 
-## 多 IDE / Agent 兼容
+## 安装与触发
 
-| 环境 | 入口文件 | 触发方式 |
-|---|---|---|
-| **Claude Code** | `SKILL.md` | clone 到 `~/.claude/skills/overseas-stock-tax/`，对话中提"海外股票个税"即触发 |
-| **OpenAI Codex CLI** | `AGENTS.md` | clone 后 `codex` 自动读取 `AGENTS.md` |
-| **Cursor** | `.cursor/rules/overseas-stock-tax.mdc` | clone 后 Cursor 自动加载该规则 |
-| **浏览器 Web** | `index.html` | 任意静态服务器 / GitHub Pages 直接打开 |
+**主用途 — Claude Code Skill**：
+```bash
+git clone https://github.com/fourierwang66666/overseas-stock-tax \
+  ~/.claude/skills/overseas-stock-tax
+```
+在 Claude Code 对话中提到"海外股票个税"、"港美股补税"、"富途/长桥申报"即自动触发。Skill 入口为 [SKILL.md](./SKILL.md)。
+
+**也兼容**：
+- **OpenAI Codex CLI** — clone 仓库到任意目录，`codex` 自动读取 [AGENTS.md](./AGENTS.md)
+- **Cursor** — clone 仓库到任意目录，Cursor 自动加载 [.cursor/rules/overseas-stock-tax.mdc](./.cursor/rules/overseas-stock-tax.mdc)
+- **浏览器 Web** — 直接打开 GitHub Pages 链接，或本地 `python3 -m http.server`
 
 ---
 
