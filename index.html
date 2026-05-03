@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>海外股票个税计算器 — 纯浏览器 / 数据不外传</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.27.2/full/pyodide.js"></script>
+</head>
+<body>
+  <header>
+    <h1>🧾 海外股票个税计算器</h1>
+    <p class="subtitle">中国境内自然人 · 港股 / 美股 · 富途 / 长桥 · <strong>全程在浏览器运行，数据永不上传</strong></p>
+  </header>
+
+  <main>
+    <!-- 重要声明（强制显示）-->
+    <section class="disclaimer">
+      <h2>⚠️ 重要声明（请先阅读）</h2>
+      <ol>
+        <li><strong>依法纳税是中国公民的基本义务</strong>（《宪法》第 56 条）</li>
+        <li>本工具输出 <strong>仅供参考</strong>，最终申报金额以主管税务机关认定为准</li>
+        <li>本工具 <strong>拒绝</strong>任何隐匿账户、虚构亏损等违法/灰色避税建议</li>
+        <li>所有计算 <strong>100% 在浏览器本地完成</strong>，您的交易数据和 API Key 永不发送到任何服务器</li>
+        <li>建议在最终申报前 <strong>委托执业税务师 / 注册会计师复核签字</strong></li>
+      </ol>
+      <label><input type="checkbox" id="acceptDisclaimer"> 我已阅读并理解上述声明</label>
+    </section>
+
+    <!-- 模式选择 -->
+    <section class="card">
+      <h2>步骤 1 · 选择计算模式</h2>
+      <div class="mode-row">
+        <label class="mode-card">
+          <input type="radio" name="mode" value="algorithm" checked>
+          <div>
+            <h3>🧮 算法版（推荐）</h3>
+            <p>100% 本地算法 · 无需 API Key · 数据零外传 · 免费</p>
+            <small>4 种成本算法 + 公司行为 + 转仓 + 5 节点对账</small>
+          </div>
+        </label>
+        <label class="mode-card">
+          <input type="radio" name="mode" value="ai">
+          <div>
+            <h3>🤖 AI 增强版</h3>
+            <p>在算法基础上 + Claude API（PDF 兜底解析 + 节税建议）</p>
+            <small>需要 Anthropic API Key（您自备）· Key 仅存浏览器本地</small>
+          </div>
+        </label>
+      </div>
+
+      <div id="apiKeySection" class="hidden">
+        <label>Anthropic API Key
+          <input type="password" id="apiKey" placeholder="sk-ant-..." autocomplete="off">
+        </label>
+        <p class="hint">🔒 Key 仅存于浏览器 localStorage，关闭页面后由您选择是否保留。<a href="https://console.anthropic.com/settings/keys" target="_blank">如何获取 API Key</a></p>
+      </div>
+    </section>
+
+    <!-- 5 个交互问题 -->
+    <section class="card">
+      <h2>步骤 2 · 申报信息</h2>
+      <div class="form-grid">
+        <label>纳税年度
+          <input type="number" id="settlementYear" min="2018" max="2030" value="2024">
+        </label>
+        <label>居住城市
+          <select id="city">
+            <option value="北京">北京（执行最严）</option>
+            <option value="上海">上海</option>
+            <option value="深圳">深圳</option>
+            <option value="广州">广州</option>
+            <option value="杭州">杭州</option>
+            <option value="其他">其他</option>
+          </select>
+        </label>
+        <label>是否包含股息红利
+          <select id="includeDividend">
+            <option value="auto">自动从流水识别</option>
+            <option value="yes">是，单独申报</option>
+            <option value="no">无</option>
+          </select>
+        </label>
+        <label>是否需要境外抵免
+          <select id="includeCredit">
+            <option value="yes">是（默认）</option>
+            <option value="no">否</option>
+          </select>
+        </label>
+        <label>跨券商持仓转入
+          <select id="crossBroker">
+            <option value="no">无</option>
+            <option value="yes">有（需另传成本结转单）</option>
+          </select>
+        </label>
+        <label>默认成本算法
+          <select id="defaultMethod">
+            <option value="weighted_avg">滚动加权平均（推荐）</option>
+            <option value="fifo">FIFO 先进先出</option>
+            <option value="moving_avg">移动加权平均</option>
+            <option value="specific_id">个别计价</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <!-- 文件上传 -->
+    <section class="card">
+      <h2>步骤 3 · 上传交易明细</h2>
+      <p class="hint">支持富途/长桥的 Excel 月结单 / 年度账单。PDF 解析在 AI 版可用，算法版请先用券商导出 Excel。</p>
+      <div id="dropzone" class="dropzone">
+        <input type="file" id="fileInput" multiple accept=".xlsx,.xls,.csv,.pdf">
+        <p>📂 拖拽文件到此处，或点击选择</p>
+        <p id="fileList"></p>
+      </div>
+    </section>
+
+    <!-- 运行 -->
+    <section class="card">
+      <h2>步骤 4 · 计算</h2>
+      <button id="runBtn" class="primary" disabled>开始计算</button>
+      <p id="status">等待 Pyodide 加载...</p>
+      <pre id="log"></pre>
+    </section>
+
+    <!-- 结果 -->
+    <section class="card hidden" id="resultSection">
+      <h2>步骤 5 · 结果与下载</h2>
+      <div id="summary"></div>
+      <div id="downloads"></div>
+      <p class="reaffirm">⚠️ 再次提醒：本结果仅供参考，最终以主管税务机关认定为准。建议委托执业税务师复核签字。</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>开源代码：<a href="https://github.com/fourierwang66666/overseas-stock-tax" target="_blank">github.com/fourierwang66666/overseas-stock-tax</a> · MIT License</p>
+    <p>本工具旨在引导依法纳税 · 数据不外传 · 仅供参考</p>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

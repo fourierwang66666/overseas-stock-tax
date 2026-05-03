@@ -1,0 +1,40 @@
+---
+description: 港美股个税申报 skill — Cursor 触发规则
+globs: ["**/*.py", "**/*.md"]
+alwaysApply: false
+---
+
+# overseas-stock-tax — Cursor Rule
+
+## When to apply
+
+用户在 Cursor 中提到以下任一关键词时启用：
+- 海外股票个税 / 港美股个税 / 港美股补税
+- 富途 (Futu/Moomoo) / 长桥 (Longbridge/Longport) + 申报/税
+- 境外所得 / 财产转让所得 / B 表
+- CRS 补税 / 自查海外股票
+
+## Action
+
+1. **先读 [SKILL.md](mdc:SKILL.md)** —— 本项目的权威指南（8 步工作流 + 5 节点对账 + 硬约束）。
+2. 再读 `references/01-政策依据.md` 与 `references/02-计算口径与四算法对比.md`。
+3. 按 SKILL.md 的工作流执行：解析流水 → 4 算法成本 → 双轨汇率 → 应纳税额 → 5 节点对账 → 输出 4 份 Excel。
+
+## Hard constraints
+
+- ❌ **禁止用 LLM 视觉能力直接读 PDF 数字**——必须走 `scripts/parse_*.py`（基于 `pdfplumber` 文本层）
+- ❌ **禁止 LLM 心算金额**——所有计算用 Python `Decimal`，禁用 float
+- ❌ **禁止跳过 5 节点对账**——任一节点失败必须阻塞输出
+- ❌ **禁止给灰色避税建议**（隐匿账户、虚构亏损、推迟申报）
+- ✅ 4 算法都算，让用户决策——不替用户选
+
+## File map (for code navigation)
+
+- 主指南：[SKILL.md](mdc:SKILL.md)
+- 计算引擎：[scripts/cost_basis.py](mdc:scripts/cost_basis.py)
+- 数据结构：[scripts/schema.py](mdc:scripts/schema.py)
+- 富途解析：[scripts/parse_futu.py](mdc:scripts/parse_futu.py)
+- 长桥解析：[scripts/parse_longbridge.py](mdc:scripts/parse_longbridge.py)
+- 对账门控：[scripts/reconcile.py](mdc:scripts/reconcile.py)
+- 输出生成：[scripts/render_report.py](mdc:scripts/render_report.py)
+- 单元测试：[scripts/test_cost_basis.py](mdc:scripts/test_cost_basis.py)
